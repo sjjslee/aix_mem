@@ -1,0 +1,14 @@
+title: Usage of AIX Comp memory
+agents: aix
+catalog: os/kernel
+license: GPL
+distribution: check_mk
+description:
+ AIX 메모리 사용량 중 연산영역으로 사용된 메모리 비율입니다.
+ File Cache 영역을 제외한 어플리케이션과 커널이 사용한 연산영역 메모리 사용량을 모니터링 합니다.
+ This check measures the current usage of AIX Computational Memory.
+ You can define a warning and critical level for the usage of Computational Memory.
+
+inventory:
+  One check is created if a non-empty {<<<aix_mem_comp>>>} section is
+  present in the agent output
