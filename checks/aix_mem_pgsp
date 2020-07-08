@@ -1,0 +1,51 @@
+import logging
+logging.basicConfig(filename='/tmp/check_aix_comp.log', filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
+
+def write_log(text, file):
+    f = open(file, 'a')           # 'a' will append to an existing file if it exists
+    f.write("{}\n".format(text))  # write the text to the logfile and move to next line
+    return
+
+logfile = "/tmp/check_aix_comp.log"  # name of my log file
+
+factory_settings['aix_mem_default_levels'] = {
+    'warn' : 50.0,
+    'crit' : 70.0,
+    }
+
+def inventory_aix_mem_pgsp(info):
+   for line in info:
+      mem_type = line[0]   # variable name is in the first column
+      field =    line[1]   # value is in the 2nd column
+
+      if mem_type == "pgsp":
+          # found an interesting line, yield it to check_mk
+          yield mem_type, {}
+
+def check_aix_mem_pgsp(item, params, info):
+   warn  = params['warn']
+   crit  = params['crit']
+
+   for line in info:
+      #if line[1] == item:
+         comp_f = float(line[1])
+         perfdata = [ ( "comp", comp_f, warn, crit ) ]
+
+         if comp_f > crit:
+            return 2, "Paging Space(SWAP): %.1f%%, (warn/crit at %.1f%%/%.1f%%)" % (comp_f, warn, crit), perfdata
+
+         elif comp_f > warn:
+            return 1, "Paging Space(SWAP): %.1f%%, (warn/crit at %.1f%%/%.1f%%)" % (comp_f, warn, crit), perfdata
+
+         else:
+            return 0, "Paging Space(SWAP): %.1f%%, (warn/crit at %.1f%%/%.1f%%)" % (comp_f, warn, crit), perfdata
+
+# declare the check to Checkmk
+check_info["aix_mem_pgsp"] = {
+    'check_function':            check_aix_mem_pgsp,
+    'inventory_function':        inventory_aix_mem_pgsp,
+    'service_description':       'AIX Mem %s',
+    'has_perfdata':              True,
+    'group':                     'aix_mem_pgsp',
+    'default_levels_variable':   'aix_mem_default_levels',
+}
