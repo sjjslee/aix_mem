@@ -1,0 +1,17 @@
+#!/bin/sh
+    #    #####   #    #  #    #   #####   ####
+    #    #    #  ##  ##  #   #      #    #
+    #    #####   # ## #  ####       #     ####
+    #    #    #  #    #  #  #       #         #
+    #    #    #  #    #  #   #      #    #    #
+    #    #####   #    #  #    #     #     ####
+
+# This file is a check Script for check_mk
+
+echo '<<<aix_mem_comp>>>'
+vmstat -v | vmstat -v |egrep "computational" | awk '{print "num_comp " $1}'
+vmstat -v | vmstat -v |egrep "numclient" | awk '{print "Noncomp " $1}'
+
+echo '<<<aix_mem_pgsp>>>'
+lsps -s |sed -n '/%/p' |cut -d '%' -f1 |awk '{print "pgsp " $2}'
+
